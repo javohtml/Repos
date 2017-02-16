@@ -92,10 +92,10 @@ function listGeocordinates(ad){
 }
 function logout(){
 	window.localStorage.clear();
-	window.location.href = "./"
+	window.location.href = "index.html"
 }
 function isLogin(){
 	if (!window.localStorage.getItem("NombreUser")) {
-		window.location.href = "./"
+		window.location.href = "index.html"
 	}
 }
