@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title> CDRAPP </title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css' />
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><span id="admin"></span></a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a id="logout"><i class="fa fa-power-off fa-fw"></i> Cerrar Sesión</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <!-- Page Content -->
+        <div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                <br>
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body" style="height: 70vh;" id="map">
+                            </div>
+                            <div class="panel-footer">
+                                <input type="hidden" name="sid" id="sid" value="">
+                                <center><button class="btn btn-info" id="concluded" style="display: none;">Solicitud Completada</button></center>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+    <div class="modal fade" id="modConduct" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">Modificar Conductor</h4>
+                </div>
+                <div class="modal-body">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </div>
+                <div class="modal-footer">
+                    <span><center><i class="fa fa-warning" style="color: orange;"></i> ¡Favor asegurese que los datos sean correctos!</center></span>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- jQuery -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="vendor/metisMenu/metisMenu.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="dist/js/sb-admin-2.js"></script>
+    <!-- Theme bootbox -->
+    <script src="js/bootbox.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="data/app.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            isLogin();
+            $("#admin").html(window.localStorage.getItem("NombreUser"))
+            solicitudesConductor(window.localStorage.getItem("numberUser"))
+        })
+        $("#logout").click(function(){
+            logout();
+        })
+    </script>
+    <script type="text/javascript">
+
+        var map
+        var marcador
+        var myLocation
+        var image = 'images/car-icon.png';
+        var bounds
+        var directionsDisplay
+        var directionsService
+
+        function initMap() {
+            var mapOptions = { zoom: 16, mapTypeId: google.maps.MapTypeId.ROADMAP };
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    myLocation = position.coords.latitude + ', ' + position.coords.longitude;
+                    console.log(myLocation)
+                    //var infowindow = new google.maps.InfoWindow({ map: map, position: pos, content: 'Aqui Estoy!' })
+                    //donde estoy!
+                    marcador = new google.maps.Marker({ icon: image, position: pos, map: map, title: 'Dónde estoy?' })
+                    //nuevo marcador ejemplo
+                    //new google.maps.Marker({position: new google.maps.LatLng(-33.492309, -70.647301), map: map, title: 'otra mas'})
+                    //centrar el mapa en mi ubicación
+                    map.setCenter(pos);
+                }, function() { handleNoGeolocation(true); });
+            } else {
+                // Browser doesn't support Geolocation
+                handleNoGeolocation(false);
+            }
+
+            function handleNoGeolocation(errorFlag) {
+                if (errorFlag) {
+                    var content = 'Error: The Geolocation service failed.';
+                } else {
+                    var content = 'Error: Your browser doesn\'t support geolocation.';
+                }
+
+                var options = { map: map, position: new google.maps.LatLng(60, 105), content: content };
+                var infowindow = new google.maps.InfoWindow(options);
+                map.setCenter(options.position);
+            }
+            //new google.maps.Marker({position: new google.maps.LatLng(-33.492309, -70.647301), map: map, title: 'otra mas'})
+            //var infowindow = new google.maps.InfoWindow();
+            //var marker = new google.maps.Marker({ map: map, anchorPoint: new google.maps.Point(0, -29) });
+          }
+          function setnewpos(){
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    myLocation = position.coords.latitude + ', ' + position.coords.longitude;
+                    saveGeo(myLocation)
+                    //var infowindow = new google.maps.InfoWindow({ map: map, position: pos, content: 'Aqui Estoy!' })
+                    //donde estoy!
+                    marcador.setVisible(false);
+                    
+                    marcador = new google.maps.Marker({ icon: image, position: pos, map: map, title: 'Dónde estoy?' })
+                    //nuevo marcador ejemplo
+                    //new google.maps.Marker({position: new google.maps.LatLng(-33.492309, -70.647301), map: map, title: 'otra mas'})
+                    //centrar el mapa en mi ubicación
+                    map.setCenter(pos);
+                }, function() { handleNoGeolocation(true); });
+            } else {
+                // Browser doesn't support Geolocation
+                handleNoGeolocation(false);
+            }
+
+            function handleNoGeolocation(errorFlag) {
+                if (errorFlag) {
+                    var content = 'Error: The Geolocation service failed.';
+                } else {
+                    var content = 'Error: Your browser doesn\'t support geolocation.';
+                }
+
+                var options = { map: map, position: new google.maps.LatLng(60, 105), content: content };
+                var infowindow = new google.maps.InfoWindow(options);
+                map.setCenter(options.position);
+            }
+          }
+
+          setInterval(setnewpos, 15000)
+
+          function dobarrelroll(desde, hasta, solicitud){
+            $("#concluded").show();
+            $("#sid").val(solicitud);
+            console.log(solicitud)
+            marcador = new google.maps.Marker({ position: new google.maps.LatLng(parseFloat(hasta.split(', ')[0]), parseFloat(hasta.split(', ')[1])), map: map, title: 'This' })
+            var directionsService = new google.maps.DirectionsService();
+            var directionsDisplay = new google.maps.DirectionsRenderer();
+            directionsDisplay.setMap(map);
+            var destino = new google.maps.LatLng(parseFloat(desde.split(', ')[0]), parseFloat(desde.split(', ')[1]));
+            var origen = new google.maps.LatLng(parseFloat(hasta.split(', ')[0]), parseFloat(hasta.split(', ')[1]));
+
+            var request = {
+                destination: destino,
+                origin: origen,
+                travelMode: google.maps.DirectionsTravelMode.DRIVING
+            };
+            
+
+            directionsService.route(request, function(response,status){
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setOptions({ preserveViewport: true });
+                    directionsDisplay.setDirections(response);
+                }
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClyegGtVbuBXxQ6YKt6vPgQTEI6WfVmOE&libraries=places&callback=initMap" async defer></script>
+    <script type="text/javascript">
+        function saveGeo(geo){
+            var c = window.localStorage.getItem("numberUser")
+            addGeocordinates(c, geo);
+        }
+    </script>
+    <script type="text/javascript">
+    $("#concluded").click(function(){
+        bootbox.confirm("¿Va a dar por finalizada la solicitud?", function(result){
+            if (result) {
+                solicitudDone($("#sid").val())
+                setInterval(function(){window.location.reload(), 1000})
+            }
+        });
+    });
+    </script>
+</body>
+</html>
